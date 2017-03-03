@@ -188,3 +188,44 @@ namespace cxxblas {
     scale(x.size(), alpha, &x[0], 1);
   }
 }
+
+// * BLAS Level 2
+namespace cxxblas {
+  /////////////////////////////////////////////////////
+  // General matrix--vector multiplication
+  // y ← α op(A)x + βy
+  /////////////////////////////////////////////////////
+#define BLAS_GEMV(TYPE, BLAS_F)                                         \
+  BLAS_FUNC(gemv, void)(const enum CBLAS_ORDER order,                   \
+                        const enum CBLAS_TRANSPOSE trans,               \
+                        const int m, const int n,                       \
+                        const TYPE alpha, const TYPE* a, const int lda, \
+                        const TYPE* x, const int incx,                  \
+                        const TYPE beta, TYPE* y, const int incy){      \
+    BLAS_F(order,                                                       \
+           trans, m, n, alpha, a, lda,                                  \
+           x, incx,                                                     \
+           beta, y, incy);                                              \
+  }
+  BLAS_GEMV(float, cblas_sgemv);
+  BLAS_GEMV(double, cblas_dgemv);
+#define BLAS_CGEMV(TYPE, BLAS_F)                                        \
+  BLAS_FUNC(gemv, void)(const enum CBLAS_ORDER order,                   \
+                        const enum CBLAS_TRANSPOSE trans,               \
+                        const int m, const int n,                       \
+                        const std::complex<TYPE> alpha,                 \
+                        const std::complex<TYPE>* a, const int lda,     \
+                        const std::complex<TYPE>* x, const int incx,    \
+                        const std::complex<TYPE> beta,                  \
+                        std::complex<TYPE>* y, const int incy){         \
+    BLAS_F(order,                                                       \
+           trans, m, n,                                                 \
+           reinterpret_cast<const TYPE*>(&alpha),                       \
+           reinterpret_cast<const TYPE*>(a), lda,                       \
+           reinterpret_cast<const TYPE*>(x), incx,                      \
+           reinterpret_cast<const TYPE*>(&beta),                        \
+           reinterpret_cast<TYPE*>(y), incy);                           \
+  }
+  BLAS_CGEMV(float, cblas_cgemv);
+  BLAS_CGEMV(double, cblas_zgemv);
+}
