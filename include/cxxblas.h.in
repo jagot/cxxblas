@@ -85,11 +85,6 @@ namespace cxxblas {
   }
   BLAS_DOT(dot, float, cblas_sdot);
   BLAS_DOT(dot, double, cblas_ddot);
-  template<class T>
-  inline T dot(const std::vector<T>& X, const std::vector<T>& Y)
-  {
-    return dot(X.size(), &X[0], 1, &Y[0], 1);
-  }
 
 #define BLAS_DOTC(FUNCNAME, TYPE, CTYPE_P, BLAS_F)                      \
   BLAS_FUNC(FUNCNAME,std::complex<TYPE>)(int N,                         \
@@ -117,6 +112,17 @@ namespace cxxblas {
   }
   BLAS_DOTU(dotu, float, cxxcomplex_p, cblas_cdotu_sub);
   BLAS_DOTU(dotu, double, cxxzomplex_p, cblas_zdotu_sub);
+
+  template<class T>
+  inline auto dot(const std::vector<T>& X, const std::vector<T>& Y)
+  {
+    return dot(X.size(), &X[0], 1, &Y[0], 1);
+  }
+  template<class T>
+  inline T dotu(const std::vector<T>& X, const std::vector<T>& Y)
+  {
+    return dotu(X.size(), &X[0], 1, &Y[0], 1);
+  }
 
   /////////////////////////////////////////////////////
   // Norm computation (result ← ||x||_2)
