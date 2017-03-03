@@ -87,9 +87,10 @@ namespace cxxblas {
   BLAS_DOT(dot, double, cblas_ddot);
 
 #define BLAS_DOTC(FUNCNAME, TYPE, CTYPE_P, BLAS_F)                      \
-  BLAS_FUNC(FUNCNAME,std::complex<TYPE>)(int N,                         \
-                           const std::complex<TYPE>* X, int INCX,       \
-                           const std::complex<TYPE>* Y, int INCY){      \
+  BLAS_FUNC(FUNCNAME,std::complex<TYPE>)                                \
+    (int N,                                                             \
+     const std::complex<TYPE>* X, int INCX,                             \
+     const std::complex<TYPE>* Y, int INCY){                            \
     std::complex<TYPE> t;                                               \
     BLAS_F(N,                                                           \
            reinterpret_cast<const TYPE*>(X), INCX,                      \
@@ -100,9 +101,10 @@ namespace cxxblas {
   BLAS_DOTC(dot, float, cxxcomplex_p, cblas_cdotc_sub);
   BLAS_DOTC(dot, double, cxxzomplex_p, cblas_zdotc_sub);
 #define BLAS_DOTU(FUNCNAME, TYPE, CTYPE_P, BLAS_F)                      \
-  BLAS_FUNC(FUNCNAME,std::complex<TYPE>)(int N,                         \
-                           const std::complex<TYPE>* X, int INCX,       \
-                           const std::complex<TYPE>* Y, int INCY){      \
+  BLAS_FUNC(FUNCNAME,std::complex<TYPE>)                                \
+    (int N,                                                             \
+     const std::complex<TYPE>* X, int INCX,                             \
+     const std::complex<TYPE>* Y, int INCY){                            \
     std::complex<TYPE> t;                                               \
     BLAS_F(N,                                                           \
            reinterpret_cast<const TYPE*>(X), INCX,                      \
@@ -151,13 +153,13 @@ namespace cxxblas {
   /////////////////////////////////////////////////////
   // Scaling (x ← αx)
   /////////////////////////////////////////////////////
-#define BLAS_SCALE(TYPE, BLAS_F)                    \
-  BLAS_FUNC(scale,void)(int n,                      \
-                        TYPE alpha,                 \
-                        TYPE* x, int incx){         \
-    BLAS_F(n,                                       \
-           alpha,                                   \
-           x, incx);                                \
+#define BLAS_SCALE(TYPE, BLAS_F)                \
+  BLAS_FUNC(scale,void)(int n,                  \
+                        TYPE alpha,             \
+                        TYPE* x, int incx){     \
+    BLAS_F(n,                                   \
+           alpha,                               \
+           x, incx);                            \
   }
   BLAS_SCALE(float, cblas_sscal);
   BLAS_SCALE(double, cblas_dscal);
@@ -228,6 +230,7 @@ namespace cxxblas {
   }
   BLAS_CGEMV(float, cblas_cgemv);
   BLAS_CGEMV(double, cblas_zgemv);
+}
 
 // * BLAS Level 3
 namespace cxxblas {
@@ -235,36 +238,36 @@ namespace cxxblas {
   // General matrix--matrix multiplication
   // C ← α op(A)op(B) + βC
   /////////////////////////////////////////////////////
-#define BLAS_GEMM(TYPE, BLAS_F)                                         \
-  BLAS_FUNC(gemm, void)(const enum CBLAS_ORDER order,                   \
-                        const enum CBLAS_TRANSPOSE transa,              \
-                        const enum CBLAS_TRANSPOSE transb,              \
-                        const int m, const int n, const int k,          \
-                        const TYPE alpha,                               \
-                        const TYPE* a, const int lda,                   \
-                        const TYPE* b, const int ldb,                   \
-                        const TYPE beta,                                \
-                        TYPE* c, const int incc){                       \
-    BLAS_F(order, transa, transb,                                       \
-           m, n, k,                                                     \
-           alpha,                                                       \
-           a, lda,                                                      \
-           b, ldb,                                                      \
-           beta,                                                        \
-           c, incc);                                                    \
+#define BLAS_GEMM(TYPE, BLAS_F)                                 \
+  BLAS_FUNC(gemm, void)(const enum CBLAS_ORDER order,           \
+                        const enum CBLAS_TRANSPOSE transa,      \
+                        const enum CBLAS_TRANSPOSE transb,      \
+                        const int m, const int n, const int k,  \
+                        const TYPE alpha,                       \
+                        const TYPE* a, const int lda,           \
+                        const TYPE* b, const int ldb,           \
+                        const TYPE beta,                        \
+                        TYPE* c, const int incc){               \
+    BLAS_F(order, transa, transb,                               \
+           m, n, k,                                             \
+           alpha,                                               \
+           a, lda,                                              \
+           b, ldb,                                              \
+           beta,                                                \
+           c, incc);                                            \
   }
   BLAS_GEMM(float, cblas_sgemm);
   BLAS_GEMM(double, cblas_dgemm);
 #define BLAS_CGEMM(TYPE, BLAS_F)                                        \
   BLAS_FUNC(gemm, void)(const enum CBLAS_ORDER order,                   \
-                         const enum CBLAS_TRANSPOSE transa,             \
-                         const enum CBLAS_TRANSPOSE transb,             \
-                         const int m, const int n, const int k,         \
-                         const std::complex<TYPE> alpha,                \
-                         const std::complex<TYPE>* a, const int lda,    \
-                         const std::complex<TYPE>* b, const int ldb,    \
-                         const std::complex<TYPE> beta,                 \
-                         std::complex<TYPE>* c, const int incc){        \
+                        const enum CBLAS_TRANSPOSE transa,              \
+                        const enum CBLAS_TRANSPOSE transb,              \
+                        const int m, const int n, const int k,          \
+                        const std::complex<TYPE> alpha,                 \
+                        const std::complex<TYPE>* a, const int lda,     \
+                        const std::complex<TYPE>* b, const int ldb,     \
+                        const std::complex<TYPE> beta,                  \
+                        std::complex<TYPE>* c, const int incc){         \
     BLAS_F(order, transa, transb,                                       \
            m, n, k,                                                     \
            reinterpret_cast<const TYPE*>(&alpha),                       \
