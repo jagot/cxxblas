@@ -146,8 +146,8 @@ namespace cxxblas {
   BLAS_CNRM2(float, float, cblas_scnrm2);
   BLAS_CNRM2(double, double, cblas_dznrm2);
   template<class T>
-  inline auto norm(const std::vector<T>& x){
-    return norm(x.size(), &x[0], 1);
+  inline auto norm2(const std::vector<T>& x){
+    return norm2(x.size(), &x[0], 1);
   }
 
   /////////////////////////////////////////////////////
