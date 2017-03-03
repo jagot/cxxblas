@@ -1,0 +1,184 @@
+#pragma once
+#include "@CBLAS_INCLUDE_FILE@"
+
+#include <complex>
+#include <vector>
+
+namespace cxxblas {
+#define BLAS_FUNC(FUNCNAME,RTYPE)               \
+  inline RTYPE FUNCNAME
+
+  // These are only to be used for pointer casts
+#ifdef OPENBLAS_CONFIG_H
+  typedef openblas_complex_float* cxxcomplex_p;
+  typedef openblas_complex_double* cxxzomplex_p;
+#else
+  typedef float* cxxcomplex_p;
+  typedef double* cxxzomplex_p;
+#endif
+}
+
+// * BLAS Level 1
+namespace cxxblas {
+  /////////////////////////////////////////////////////
+  // copy (y ← x)
+  /////////////////////////////////////////////////////
+#define BLAS_COPY(TYPE, BLAS_F)                         \
+  BLAS_FUNC(copy,void)(const int n,                     \
+                       const TYPE* x, const int incx,   \
+                       TYPE* y, const int incy){        \
+    BLAS_F(n,                                           \
+           x, incx,                                     \
+           y, incy);                                    \
+  }
+  BLAS_COPY(float, cblas_scopy);
+  BLAS_COPY(double, cblas_dcopy);
+#define BLAS_CCOPY(TYPE, BLAS_F)                                        \
+  BLAS_FUNC(copy,void)(const int n,                                     \
+                       const std::complex<TYPE>* x, const int incx,     \
+                       std::complex<TYPE>* y, const int incy){          \
+    BLAS_F(n,                                                           \
+           reinterpret_cast<const TYPE*>(x), incx,                      \
+           reinterpret_cast<TYPE*>(y), incy);                           \
+  }
+  BLAS_CCOPY(float, cblas_ccopy);
+  BLAS_CCOPY(double, cblas_zcopy);
+
+
+  /////////////////////////////////////////////////////
+  // axpy (y ← αx + y)
+  /////////////////////////////////////////////////////
+#define BLAS_AXPY(TYPE, BLAS_F)                         \
+  BLAS_FUNC(axpy,void)(const int n,                     \
+                       const TYPE alpha,                \
+                       const TYPE* x, const int incx,   \
+                       TYPE* y, const int incy){        \
+    BLAS_F(n,                                           \
+           alpha,                                       \
+           x, incx,                                     \
+           y, incy);                                    \
+  }
+  BLAS_AXPY(float, cblas_saxpy);
+  BLAS_AXPY(double, cblas_daxpy);
+#define BLAS_CAXPY(TYPE, BLAS_F)                                        \
+  BLAS_FUNC(axpy,void)(const int n,                                     \
+                       const std::complex<TYPE> alpha,                  \
+                       const std::complex<TYPE>* x, const int incx,     \
+                       std::complex<TYPE>* y, const int incy){          \
+    BLAS_F(n,                                                           \
+           reinterpret_cast<const TYPE*>(&alpha),                       \
+           reinterpret_cast<const TYPE*>(x), incx,                      \
+           reinterpret_cast<TYPE*>(y), incy);                           \
+  }
+  BLAS_CAXPY(float, cblas_caxpy);
+  BLAS_CAXPY(double, cblas_zaxpy);
+
+
+  /////////////////////////////////////////////////////
+  // Dot product (conjugated & non-conjugated)
+  /////////////////////////////////////////////////////
+#define BLAS_DOT(FUNCNAME, TYPE, BLAS_F)                \
+  BLAS_FUNC(FUNCNAME,TYPE)(int N,                       \
+                           const TYPE* X, int INCX,     \
+                           const TYPE* Y, int INCY){    \
+    return BLAS_F(N, X, INCX, Y, INCY);                 \
+  }
+  BLAS_DOT(dot, float, cblas_sdot);
+  BLAS_DOT(dot, double, cblas_ddot);
+  template<class T>
+  inline T dot(const std::vector<T>& X, const std::vector<T>& Y)
+  {
+    return dot(X.size(), &X[0], 1, &Y[0], 1);
+  }
+
+#define BLAS_DOTC(FUNCNAME, TYPE, CTYPE_P, BLAS_F)                      \
+  BLAS_FUNC(FUNCNAME,std::complex<TYPE>)(int N,                         \
+                           const std::complex<TYPE>* X, int INCX,       \
+                           const std::complex<TYPE>* Y, int INCY){      \
+    std::complex<TYPE> t;                                               \
+    BLAS_F(N,                                                           \
+           reinterpret_cast<const TYPE*>(X), INCX,                      \
+           reinterpret_cast<const TYPE*>(Y), INCY,                      \
+           reinterpret_cast<CTYPE_P>(&t));                              \
+    return t;                                                           \
+  }
+  BLAS_DOTC(dot, float, cxxcomplex_p, cblas_cdotc_sub);
+  BLAS_DOTC(dot, double, cxxzomplex_p, cblas_zdotc_sub);
+#define BLAS_DOTU(FUNCNAME, TYPE, CTYPE_P, BLAS_F)                      \
+  BLAS_FUNC(FUNCNAME,std::complex<TYPE>)(int N,                         \
+                           const std::complex<TYPE>* X, int INCX,       \
+                           const std::complex<TYPE>* Y, int INCY){      \
+    std::complex<TYPE> t;                                               \
+    BLAS_F(N,                                                           \
+           reinterpret_cast<const TYPE*>(X), INCX,                      \
+           reinterpret_cast<const TYPE*>(Y), INCY,                      \
+           reinterpret_cast<CTYPE_P>(&t));                              \
+    return t;                                                           \
+  }
+  BLAS_DOTU(dotu, float, cxxcomplex_p, cblas_cdotu_sub);
+  BLAS_DOTU(dotu, double, cxxzomplex_p, cblas_zdotu_sub);
+
+  /////////////////////////////////////////////////////
+  // Norm computation (result ← ||x||_2)
+  /////////////////////////////////////////////////////
+#define BLAS_NRM2(X_T, NORM_T, BLAS_F)                  \
+  BLAS_FUNC(norm2,NORM_T)(int n,                        \
+                          const X_T* x, int incx){      \
+    return BLAS_F(n,                                    \
+                  x, incx);                             \
+  }
+  BLAS_NRM2(float, float, cblas_snrm2);
+  BLAS_NRM2(double, double, cblas_dnrm2);
+#define BLAS_CNRM2(X_T, NORM_T, BLAS_F)                                 \
+  BLAS_FUNC(norm2,NORM_T)(int n,                                        \
+                          const std::complex<X_T>* x, int incx){        \
+    return BLAS_F(n,                                                    \
+                  reinterpret_cast<const X_T*>(x), incx);               \
+  }
+  BLAS_CNRM2(float, float, cblas_scnrm2);
+  BLAS_CNRM2(double, double, cblas_dznrm2);
+  template<class T>
+  inline auto norm(const std::vector<T>& x){
+    return norm(x.size(), &x[0], 1);
+  }
+
+  /////////////////////////////////////////////////////
+  // Scaling (x ← αx)
+  /////////////////////////////////////////////////////
+#define BLAS_SCALE(TYPE, BLAS_F)                    \
+  BLAS_FUNC(scale,void)(int n,                      \
+                        TYPE alpha,                 \
+                        TYPE* x, int incx){         \
+    BLAS_F(n,                                       \
+           alpha,                                   \
+           x, incx);                                \
+  }
+  BLAS_SCALE(float, cblas_sscal);
+  BLAS_SCALE(double, cblas_dscal);
+#define BLAS_CSSCALE(TYPE, BLAS_F)                              \
+  BLAS_FUNC(scale,void)(int n,                                  \
+                        TYPE alpha,                             \
+                        std::complex<TYPE>* x, int incx){       \
+    BLAS_F(n,                                                   \
+           alpha,                                               \
+           reinterpret_cast<TYPE*>(x), incx);                   \
+  }
+  BLAS_CSSCALE(float, cblas_csscal);
+  BLAS_CSSCALE(double, cblas_zdscal);
+#define BLAS_CSCALE(TYPE, BLAS_F)                               \
+  BLAS_FUNC(scale,void)(int n,                                  \
+                        const std::complex<TYPE> alpha,         \
+                        std::complex<TYPE>* x, int incx){       \
+    BLAS_F(n,                                                   \
+           reinterpret_cast<const TYPE*>(&alpha),               \
+           reinterpret_cast<TYPE*>(x), incx);                   \
+  }
+  BLAS_CSCALE(float, cblas_cscal);
+  BLAS_CSCALE(double, cblas_zscal);
+
+  template<class T, class U>
+  inline void scale(T alpha, std::vector<U>& x)
+  {
+    scale(x.size(), alpha, &x[0], 1);
+  }
+}

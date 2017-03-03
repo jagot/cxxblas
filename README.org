@@ -1,0 +1,59 @@
+#+TITLE: CXXBLAS
+#+AUTHOR: Stefanos Carlström
+#+EMAIL: stefanos.carlstrom@gmail.com
+
+* Introduction
+  C++ (header-only) templated wrappers around CBLAS/LAPACKE.
+  
+  Tested with OpenBLAS on Linux and Accelerate on macOS.
+
+* Example usage
+  scale.cpp:
+  #+BEGIN_SRC C++
+    #include "cxxblas.h"
+    #include <complex>
+    #include <vector>
+    #include <iostream>
+
+    template<class T>
+    void pvec(const std::vector<T>& v)
+    {
+      std::cout << "[";
+      for(const auto &e : v)
+        std::cout << e << " ";
+      std::cout << "]" << std::endl;
+    }
+
+    int main(int argc, char* argv[])
+    {
+      int n = 10;
+      std::vector<std::complex<double>> x(n, {0.0, 1.0});
+
+      pvec(x);
+
+      cxxblas::scale(5.0, x);
+  
+      pvec(x);
+
+      return 0;
+    }
+  #+END_SRC
+
+  CMakeLists.txt:
+  #+BEGIN_SRC cmake
+    cmake_minimum_required(VERSION 3.6)
+    project(meff)
+
+    # Or wherever cxxblas cmake directory is to be found
+    set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cxxblas/cmake")
+    include(CXXBLAS)
+
+    add_executable(scale scale.cpp)
+    target_link_libraries(scale ${CXXBLAS_LIBRARIES})
+  #+END_SRC
+
+  Output:
+  #+BEGIN_EXAMPLE
+    [(0,1) (0,1) (0,1) (0,1) (0,1) (0,1) (0,1) (0,1) (0,1) (0,1) ]
+    [(0,5) (0,5) (0,5) (0,5) (0,5) (0,5) (0,5) (0,5) (0,5) (0,5) ]
+  #+END_EXAMPLE
