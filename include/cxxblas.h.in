@@ -72,6 +72,12 @@ namespace cxxblas {
   }
   BLAS_CAXPY(float, cblas_caxpy);
   BLAS_CAXPY(double, cblas_zaxpy);
+  template<class T, class U>
+  inline void axpy(const T alpha, const std::vector<U>& x,
+                   std::vector<U>& y)
+  {
+    axpy(x.size(), U(alpha), &x[0], 1, &y[0], 1);
+  }
 
 
   /////////////////////////////////////////////////////
