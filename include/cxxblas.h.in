@@ -239,6 +239,47 @@ namespace cxxblas {
   }
   BLAS_CGEMV(float, cblas_cgemv);
   BLAS_CGEMV(double, cblas_zgemv);
+
+
+  /////////////////////////////////////////////////////
+  // General banded matrix--vector multiplication
+  // y ← α op(A)x + βy
+  /////////////////////////////////////////////////////
+#define BLAS_GBMV(TYPE, BLAS_F)                                         \
+  BLAS_FUNC(gbmv, void)(const enum CBLAS_ORDER order,                   \
+                        const enum CBLAS_TRANSPOSE trans,               \
+                        const int m, const int n,                       \
+                        const int kl, const int ku,                     \
+                        const TYPE alpha, const TYPE* a, const int lda, \
+                        const TYPE* x, const int incx,                  \
+                        const TYPE beta, TYPE* y, const int incy){      \
+    BLAS_F(order,                                                       \
+           trans, m, n, kl, ku, alpha, a, lda,                          \
+           x, incx,                                                     \
+           beta, y, incy);                                              \
+  }
+  BLAS_GBMV(float, cblas_sgbmv);
+  BLAS_GBMV(double, cblas_dgbmv);
+#define BLAS_CGBMV(TYPE, BLAS_F)                                        \
+  BLAS_FUNC(gbmv, void)(const enum CBLAS_ORDER order,                   \
+                        const enum CBLAS_TRANSPOSE trans,               \
+                        const int m, const int n,                       \
+                        const int kl, const int ku,                     \
+                        const std::complex<TYPE> alpha,                 \
+                        const std::complex<TYPE>* a, const int lda,     \
+                        const std::complex<TYPE>* x, const int incx,    \
+                        const std::complex<TYPE> beta,                  \
+                        std::complex<TYPE>* y, const int incy){         \
+    BLAS_F(order,                                                       \
+           trans, m, n, kl, ku,                                         \
+           reinterpret_cast<const TYPE*>(&alpha),                       \
+           reinterpret_cast<const TYPE*>(a), lda,                       \
+           reinterpret_cast<const TYPE*>(x), incx,                      \
+           reinterpret_cast<const TYPE*>(&beta),                        \
+           reinterpret_cast<TYPE*>(y), incy);                           \
+  }
+  BLAS_CGBMV(float, cblas_cgbmv);
+  BLAS_CGBMV(double, cblas_zgbmv);
 }
 
 // * BLAS Level 3
