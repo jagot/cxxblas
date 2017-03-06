@@ -4,6 +4,9 @@
 #include <complex>
 #include <vector>
 
+#include <cstddef>
+#include <cassert>
+
 namespace cxxblas {
 #define BLAS_FUNC(FUNCNAME,RTYPE)               \
   inline RTYPE FUNCNAME
@@ -285,3 +288,41 @@ namespace cxxblas {
   BLAS_CGEMM(float, cblas_cgemm);
   BLAS_CGEMM(double, cblas_zgemm);
 }
+
+// * Banded matric
+namespace cxxblas {
+  /// @see http://www.netlib.org/lapack/lug/node124.html
+  template<class T, size_t kl, size_t ku>
+  class BandMatrix{
+  public:
+    BandMatrix(unsigned int N)
+      : lda(kl+ku+1), N(N), size(N*lda),
+        mat(size)
+    {
+      assert(kl<N && ku<N);
+    }
+
+    virtual ~BandMatrix(){}
+
+    /// Column-major, to comply with BLAS (Fortran)
+    /// diag = 0 => main diagonal
+    /// diag > 0 => superdiagonals
+    /// diag < 0 => subdiagonals
+    T& operator()(int diag, unsigned int j){
+      return mat[j*lda - diag + ku];
+    }
+
+    T* ptr(){
+      return &mat[0];
+    }
+
+    const size_t lda, N;
+    const size_t size;
+    std::vector<T> mat;
+  };
+
+  template<class T>
+  using TriMatrix = BandMatrix<T,1,1>;
+  template<class T>
+  using SymTriMatrix = BandMatrix<T,0,1>;
+}  // cxxblas
